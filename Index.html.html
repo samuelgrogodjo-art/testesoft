@@ -1,0 +1,936 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantis Pro - Quantificação de Materiais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .premium-badge {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .calculation-result {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .payment-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .locked-content {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        .payment-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .mpesa-button {
+            background: linear-gradient(135deg, #00c851, #007e33);
+        }
+
+        .paypal-button {
+            background: linear-gradient(135deg, #0070ba, #003087);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .white-icon {
+            filter: brightness(0) invert(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-center">Quantis Pro</h1>
+            <p class="text-center mt-2 opacity-90">Quantificação Profissional de Materiais</p>
+            <div class="text-center mt-3">
+                <span id="userStatus" class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">Versão Gratuita</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Materials Grid -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <!-- Concreto -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('concreto')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 30h6l2-10h12l-1 5-8 1v2l8-1-1 5h-8v2h9.5l1-5h4l-2 10H10zm18-18v2h10v-2H28zm-18 8h2v-2h-2v2zm0 4h2v-2h-2v2z"/>
+                    <circle cx="35" cy="30" r="6"/>
+                    <path d="M8 28h4l3-15h20v2H16l-2 10h4v2h-6l-2 10H8v-2h1l2-10H8v-2z"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Concreto</span>
+            </div>
+
+            <!-- Parede -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('parede')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="10" width="36" height="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <rect x="8" y="12" width="10" height="4" fill="currentColor"/>
+                    <rect x="20" y="12" width="10" height="4" fill="currentColor"/>
+                    <rect x="32" y="12" width="8" height="4" fill="currentColor"/>
+                    <rect x="8" y="18" width="6" height="4" fill="currentColor"/>
+                    <rect x="16" y="18" width="10" height="4" fill="currentColor"/>
+                    <rect x="28" y="18" width="10" height="4" fill="currentColor"/>
+                    <rect x="8" y="24" width="10" height="4" fill="currentColor"/>
+                    <rect x="20" y="24" width="10" height="4" fill="currentColor"/>
+                    <rect x="32" y="24" width="8" height="4" fill="currentColor"/>
+                    <rect x="8" y="30" width="6" height="4" fill="currentColor"/>
+                    <rect x="16" y="30" width="10" height="4" fill="currentColor"/>
+                    <rect x="28" y="30" width="10" height="4" fill="currentColor"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Parede</span>
+            </div>
+
+            <!-- Laje -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('laje')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="18" width="36" height="6" fill="currentColor"/>
+                    <rect x="4" y="14" width="40" height="2" fill="currentColor"/>
+                    <rect x="4" y="26" width="40" height="2" fill="currentColor"/>
+                    <circle cx="12" cy="21" r="1" fill="white"/>
+                    <circle cx="18" cy="21" r="1" fill="white"/>
+                    <circle cx="24" cy="21" r="1" fill="white"/>
+                    <circle cx="30" cy="21" r="1" fill="white"/>
+                    <circle cx="36" cy="21" r="1" fill="white"/>
+                    <rect x="8" y="30" width="2" height="8" fill="currentColor"/>
+                    <rect x="14" y="30" width="2" height="8" fill="currentColor"/>
+                    <rect x="20" y="30" width="2" height="8" fill="currentColor"/>
+                    <rect x="26" y="30" width="2" height="8" fill="currentColor"/>
+                    <rect x="32" y="30" width="2" height="8" fill="currentColor"/>
+                    <rect x="38" y="30" width="2" height="8" fill="currentColor"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Laje</span>
+            </div>
+
+            <!-- Piso Completo -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('piso')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="8" width="10" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="20" y="8" width="10" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="32" y="8" width="8" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="8" y="20" width="10" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="20" y="20" width="10" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="32" y="20" width="8" height="10" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="8" y="32" width="10" height="8" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="20" y="32" width="10" height="8" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <rect x="32" y="32" width="8" height="8" fill="currentColor" stroke="white" stroke-width="1"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Piso Completo</span>
+            </div>
+
+            <!-- Piso Intertravado -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('intertravado')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="24,8 32,14 32,26 24,32 16,26 16,14" fill="currentColor" stroke="white" stroke-width="2"/>
+                    <polygon points="14,20 20,24 14,28 8,24" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <polygon points="34,20 40,24 34,28 28,24" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <polygon points="20,10 26,6 32,10 26,14" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <polygon points="16,30 22,34 28,30 22,26" fill="currentColor" stroke="white" stroke-width="1"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Piso Intertravado</span>
+            </div>
+
+            <!-- Revestimento -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('revestimento')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="24,8 32,16 24,24 16,16" fill="currentColor" stroke="white" stroke-width="2"/>
+                    <polygon points="24,24 32,32 24,40 16,32" fill="currentColor" stroke="white" stroke-width="2"/>
+                    <polygon points="8,16 16,24 8,32 0,24" fill="currentColor" stroke="white" stroke-width="1"/>
+                    <polygon points="40,16 48,24 40,32 32,24" fill="currentColor" stroke="white" stroke-width="1"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Revestimento</span>
+            </div>
+
+            <!-- Escada -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('escada')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="34" width="32" height="4" fill="currentColor"/>
+                    <rect x="12" y="28" width="28" height="4" fill="currentColor"/>
+                    <rect x="16" y="22" width="24" height="4" fill="currentColor"/>
+                    <rect x="20" y="16" width="20" height="4" fill="currentColor"/>
+                    <rect x="24" y="10" width="16" height="4" fill="currentColor"/>
+                    <rect x="8" y="38" width="32" height="2" fill="currentColor"/>
+                    <rect x="12" y="32" width="28" height="2" fill="currentColor"/>
+                    <rect x="16" y="26" width="24" height="2" fill="currentColor"/>
+                    <rect x="20" y="20" width="20" height="2" fill="currentColor"/>
+                    <rect x="24" y="14" width="16" height="2" fill="currentColor"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Escada</span>
+            </div>
+
+            <!-- Gesso -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('gesso')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="8" width="32" height="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 12 Q20 16 24 12 Q28 16 36 12" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 18 Q20 22 24 18 Q28 22 36 18" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 24 Q20 28 24 24 Q28 28 36 24" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <rect x="18" y="34" width="12" height="8" rx="2" fill="currentColor"/>
+                    <circle cx="24" cy="38" r="2" fill="white"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Gesso</span>
+            </div>
+
+            <!-- Reboco -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('reboco')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="8" width="18" height="32" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <rect x="8" y="10" width="4" height="4" fill="currentColor"/>
+                    <rect x="14" y="10" width="4" height="4" fill="currentColor"/>
+                    <rect x="8" y="16" width="4" height="4" fill="currentColor"/>
+                    <rect x="14" y="16" width="4" height="4" fill="currentColor"/>
+                    <rect x="8" y="22" width="4" height="4" fill="currentColor"/>
+                    <rect x="14" y="22" width="4" height="4" fill="currentColor"/>
+                    <path d="M24 8 Q30 10 36 8 Q38 12 36 16 Q30 14 24 16 Q22 12 24 8 Z" fill="currentColor"/>
+                    <path d="M24 16 Q30 18 36 16 Q38 20 36 24 Q30 22 24 24 Q22 20 24 16 Z" fill="currentColor"/>
+                    <path d="M24 24 Q30 26 36 24 Q38 28 36 32 Q30 30 24 32 Q22 28 24 24 Z" fill="currentColor"/>
+                    <path d="M24 32 Q30 34 36 32 Q38 36 36 40 Q30 38 24 40 Q22 36 24 32 Z" fill="currentColor"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Reboco</span>
+            </div>
+
+            <!-- Pintura -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('pintura')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="8" width="8" height="20" fill="currentColor" rx="1"/>
+                    <rect x="22" y="6" width="4" height="4" fill="currentColor" rx="2"/>
+                    <rect x="18" y="28" width="12" height="6" fill="currentColor" rx="3"/>
+                    <rect x="20" y="34" width="8" height="8" fill="currentColor" rx="4"/>
+                    <rect x="18" y="10" width="2" height="16" fill="white"/>
+                    <rect x="22" y="10" width="2" height="16" fill="white"/>
+                    <rect x="26" y="10" width="2" height="16" fill="white"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Pintura</span>
+            </div>
+
+            <!-- PVC -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('pvc')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="16" width="32" height="4" fill="currentColor" rx="2"/>
+                    <rect x="8" y="22" width="32" height="4" fill="currentColor" rx="2"/>
+                    <rect x="8" y="28" width="32" height="4" fill="currentColor" rx="2"/>
+                    <circle cx="12" cy="18" r="1" fill="white"/>
+                    <circle cx="12" cy="24" r="1" fill="white"/>
+                    <circle cx="12" cy="30" r="1" fill="white"/>
+                    <circle cx="36" cy="18" r="1" fill="white"/>
+                    <circle cx="36" cy="24" r="1" fill="white"/>
+                    <circle cx="36" cy="30" r="1" fill="white"/>
+                </svg>
+                <span class="text-sm font-medium text-center">PVC</span>
+            </div>
+
+            <!-- Telha -->
+            <div class="card-hover bg-orange-500 text-white rounded-full aspect-square flex flex-col items-center justify-center cursor-pointer" onclick="openCalculator('telha')">
+                <svg class="white-icon mb-2 w-12 h-12" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="24,8 40,24 32,24 32,36 16,36 16,24 8,24" fill="currentColor"/>
+                    <path d="M10 26 Q14 22 18 26 Q22 22 26 26 Q30 22 34 26 Q38 22 42 26" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M10 30 Q14 26 18 30 Q22 26 26 30 Q30 26 34 30 Q38 26 42 30" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M10 34 Q14 30 18 34 Q22 30 26 34 Q30 30 34 34 Q38 30 42 34" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="text-sm font-medium text-center">Telha</span>
+            </div>
+        </div>
+
+        <!-- Recent Calculations (Free Version Shows Limited Info) -->
+        <div class="bg-white rounded-lg p-6 shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Cálculos Recentes</h3>
+            <div class="text-center text-gray-500 py-8">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <p class="text-lg font-medium mb-2">Nenhum cálculo salvo</p>
+                <p class="text-sm">Faça um cálculo e pague para salvar e exportar os resultados</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t">
+        <div class="flex justify-around py-2">
+            <button class="flex flex-col items-center py-2 px-4 text-orange-500">
+                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                </div>
+                <span class="text-xs mt-1">Início</span>
+            </button>
+            <button class="flex flex-col items-center py-2 px-4 text-gray-500">
+                <div class="w-8 h-8 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                </div>
+                <span class="text-xs mt-1">Orçamentos</span>
+            </button>
+            <button class="flex flex-col items-center py-2 px-4 text-gray-500">
+                <div class="w-8 h-8 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="m12 1l8.5 1.5L19 12l1.5 8.5L12 23l-8.5-1.5L5 12L3.5 3.5z"/>
+                        <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+                    </svg>
+                </div>
+                <span class="text-xs mt-1">Config</span>
+            </button>
+            <button class="flex flex-col items-center py-2 px-4 text-gray-500">
+                <div class="w-8 h-8 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </div>
+                <span class="text-xs mt-1">Mais</span>
+            </button>
+            <button class="flex flex-col items-center py-2 px-4 text-gray-500">
+                <div class="w-8 h-8 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <span class="text-xs mt-1">Perfil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="modal">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-lg w-full max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="calculatorTitle" class="text-xl font-bold">Calculadora</h2>
+                <button onclick="closeCalculator()" class="text-gray-500 text-2xl">&times;</button>
+            </div>
+            
+            <div id="calculatorContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold">Desbloquear Resultados</h2>
+                <p class="text-gray-600 mt-2">Pague uma única vez para ver e exportar os resultados dos seus cálculos</p>
+                <div class="bg-orange-100 p-3 rounded-lg mt-4">
+                    <p class="text-2xl font-bold text-orange-600">320 MZN</p>
+                    <p class="text-sm text-orange-700">Pagamento único • Acesso vitalício</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <h3 class="font-semibold text-center mb-3">O que você ganha:</h3>
+                <ul class="text-sm space-y-2">
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Visualização completa dos resultados
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Exportação em PDF e Excel
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Histórico de cálculos salvos
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Compartilhamento via WhatsApp
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Suporte técnico
+                    </li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="processPayment('mpesa')" class="mpesa-button w-full text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c3.94.49 7 3.85 7 7.93s-3.05 7.44-7 7.93V4.07z"/>
+                    </svg>
+                    <span id="mpesaText">Pagar com M-Pesa</span>
+                </button>
+
+                <button onclick="processPayment('paypal')" class="paypal-button w-full text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.421c-.315-.178-.7-.284-1.139-.284H12.2l-.99 6.28h2.385c3.773 0 6.70-1.542 7.425-4.23.18-.67.162-1.225-.148-1.647z"/>
+                    </svg>
+                    <span id="paypalText">Pagar com PayPal</span>
+                </button>
+
+                <button onclick="closePaymentModal()" class="w-full border border-gray-300 py-3 rounded-lg text-gray-700 font-medium">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full text-center">
+            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold mb-2">Pagamento Confirmado!</h2>
+            <p id="successMessage" class="text-gray-600 mb-4">Parabéns! Agora você tem acesso completo aos resultados e exportação.</p>
+            <button onclick="closeSuccessModal()" class="bg-green-500 text-white px-6 py-2 rounded-lg">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="bg-white rounded-lg p-8 m-4 text-center">
+            <div class="loading mx-auto mb-4"></div>
+            <h3 class="text-lg font-semibold mb-2">Processando Pagamento...</h3>
+            <p class="text-gray-600">Por favor, aguarde enquanto confirmamos seu pagamento.</p>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div id="exportModal" class="modal">
+        <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Exportar Resultado</h2>
+                <button onclick="closeExportModal()" class="text-gray-500 text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onclick="exportReport('pdf')">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white mr-3">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10,9 9,9 8,9"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Relatório PDF</h3>
+                            <p class="text-sm text-gray-600">Formato profissional para impressão</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onclick="exportReport('excel')">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-3">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Planilha Excel</h3>
+                            <p class="text-sm text-gray-600">Para edição e análise</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border rounded-lg cursor-pointer hover:bg-gray-50" onclick="exportReport('whatsapp')">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white mr-3">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Compartilhar WhatsApp</h3>
+                            <p class="text-sm text-gray-600">Enviar resultado diretamente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCalculation = null;
+        let isPaid = localStorage.getItem('quantisPaid') === 'true'; // Check if user has paid
+        let currentResult = null;
+
+        // Update UI based on payment status
+        function updatePaymentStatus() {
+            const statusElement = document.getElementById('userStatus');
+            if (isPaid) {
+                statusElement.textContent = 'Versão Premium Ativa';
+                statusElement.className = 'bg-green-500 bg-opacity-90 px-3 py-1 rounded-full text-sm text-white';
+            } else {
+                statusElement.textContent = 'Versão Gratuita';
+                statusElement.className = 'bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm';
+            }
+        }
+
+        // Initialize payment status on page load
+        updatePaymentStatus();
+
+        // Calculator configurations for different materials
+        const calculators = {
+            concreto: {
+                title: 'Calculadora de Concreto',
+                fields: [
+                    { name: 'comprimento', label: 'Comprimento (m)', type: 'number', required: true },
+                    { name: 'largura', label: 'Largura (m)', type: 'number', required: true },
+                    { name: 'altura', label: 'Altura/Espessura (m)', type: 'number', required: true },
+                    { name: 'tipo', label: 'Tipo de Concreto', type: 'select', options: ['C20', 'C25', 'C30'], required: true }
+                ],
+                calculate: (data) => {
+                    const volume = data.comprimento * data.largura * data.altura;
+                    const pricePerM3 = { 'C20': 5700, 'C25': 6300, 'C30': 7200 }[data.tipo]; // Prices in MZN
+                    const total = volume * pricePerM3;
+                    return {
+                        volume: volume.toFixed(2),
+                        price: total.toFixed(2),
+                        details: `Volume: ${volume.toFixed(2)}m³\nPreço por m³: ${pricePerM3.toLocaleString()} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            },
+            parede: {
+                title: 'Calculadora de Parede',
+                fields: [
+                    { name: 'comprimento', label: 'Comprimento (m)', type: 'number', required: true },
+                    { name: 'altura', label: 'Altura (m)', type: 'number', required: true },
+                    { name: 'espessura', label: 'Espessura', type: 'select', options: ['9cm', '14cm', '19cm'], required: true },
+                    { name: 'portas', label: 'Número de Portas', type: 'number', required: false },
+                    { name: 'janelas', label: 'Número de Janelas', type: 'number', required: false }
+                ],
+                calculate: (data) => {
+                    const area = data.comprimento * data.altura;
+                    const doorArea = (data.portas || 0) * 2.1 * 0.9;
+                    const windowArea = (data.janelas || 0) * 1.2 * 1.0;
+                    const netArea = area - doorArea - windowArea;
+                    
+                    const bricksPerM2 = { '9cm': 25, '14cm': 25, '19cm': 25 }[data.espessura];
+                    const totalBricks = Math.ceil(netArea * bricksPerM2);
+                    const pricePerBrick = 36; // Price in MZN
+                    const total = totalBricks * pricePerBrick;
+                    
+                    return {
+                        area: netArea.toFixed(2),
+                        bricks: totalBricks,
+                        price: total.toFixed(2),
+                        details: `Área líquida: ${netArea.toFixed(2)}m²\nTijolos necessários: ${totalBricks} unidades\nPreço por tijolo: ${pricePerBrick} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            },
+            pintura: {
+                title: 'Calculadora de Pintura',
+                fields: [
+                    { name: 'area', label: 'Área a pintar (m²)', type: 'number', required: true },
+                    { name: 'demao', label: 'Número de demãos', type: 'select', options: ['1', '2', '3'], required: true },
+                    { name: 'tipo', label: 'Tipo de Tinta', type: 'select', options: ['Látex PVA', 'Acrílica', 'Esmalte'], required: true }
+                ],
+                calculate: (data) => {
+                    const coverage = { 'Látex PVA': 12, 'Acrílica': 10, 'Esmalte': 8 }[data.tipo];
+                    const totalArea = data.area * parseInt(data.demao);
+                    const litersNeeded = Math.ceil(totalArea / coverage);
+                    const pricePerLiter = { 'Látex PVA': 750, 'Acrílica': 1050, 'Esmalte': 1350 }[data.tipo]; // Prices in MZN
+                    const total = litersNeeded * pricePerLiter;
+                    
+                    return {
+                        area: totalArea,
+                        liters: litersNeeded,
+                        price: total.toFixed(2),
+                        details: `Área total: ${totalArea}m²\nRendimento: ${coverage}m²/L\nTinta necessária: ${litersNeeded}L\nPreço por litro: ${pricePerLiter.toLocaleString()} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            },
+            laje: {
+                title: 'Calculadora de Laje',
+                fields: [
+                    { name: 'comprimento', label: 'Comprimento (m)', type: 'number', required: true },
+                    { name: 'largura', label: 'Largura (m)', type: 'number', required: true },
+                    { name: 'espessura', label: 'Espessura (cm)', type: 'number', required: true },
+                    { name: 'tipo', label: 'Tipo de Laje', type: 'select', options: ['Maciça', 'Nervurada', 'Pré-moldada'], required: true }
+                ],
+                calculate: (data) => {
+                    const volume = data.comprimento * data.largura * (data.espessura / 100);
+                    const pricePerM3 = { 'Maciça': 6500, 'Nervurada': 5800, 'Pré-moldada': 4900 }[data.tipo];
+                    const total = volume * pricePerM3;
+                    
+                    return {
+                        volume: volume.toFixed(2),
+                        price: total.toFixed(2),
+                        details: `Volume: ${volume.toFixed(2)}m³\nTipo: ${data.tipo}\nPreço por m³: ${pricePerM3.toLocaleString()} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            },
+            piso: {
+                title: 'Calculadora de Piso',
+                fields: [
+                    { name: 'comprimento', label: 'Comprimento (m)', type: 'number', required: true },
+                    { name: 'largura', label: 'Largura (m)', type: 'number', required: true },
+                    { name: 'tipo', label: 'Tipo de Piso', type: 'select', options: ['Cerâmico', 'Porcelanato', 'Granito'], required: true }
+                ],
+                calculate: (data) => {
+                    const area = data.comprimento * data.largura;
+                    const extra = area * 0.1; // 10% extra for waste
+                    const totalArea = area + extra;
+                    const pricePerM2 = { 'Cerâmico': 850, 'Porcelanato': 1200, 'Granito': 1800 }[data.tipo];
+                    const total = totalArea * pricePerM2;
+                    
+                    return {
+                        area: totalArea.toFixed(2),
+                        price: total.toFixed(2),
+                        details: `Área: ${area.toFixed(2)}m²\nDesperdício (10%): ${extra.toFixed(2)}m²\nÁrea total: ${totalArea.toFixed(2)}m²\nPreço por m²: ${pricePerM2.toLocaleString()} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            },
+            telha: {
+                title: 'Calculadora de Telha',
+                fields: [
+                    { name: 'comprimento', label: 'Comprimento do Telhado (m)', type: 'number', required: true },
+                    { name: 'largura', label: 'Largura do Telhado (m)', type: 'number', required: true },
+                    { name: 'tipo', label: 'Tipo de Telha', type: 'select', options: ['Cerâmica', 'Fibrocimento', 'Metal'], required: true }
+                ],
+                calculate: (data) => {
+                    const area = data.comprimento * data.largura;
+                    const tilesPerM2 = { 'Cerâmica': 16, 'Fibrocimento': 5, 'Metal': 4 }[data.tipo];
+                    const pricePerTile = { 'Cerâmica': 25, 'Fibrocimento': 180, 'Metal': 320 }[data.tipo];
+                    const totalTiles = Math.ceil(area * tilesPerM2 * 1.1); // 10% extra
+                    const total = totalTiles * pricePerTile;
+                    
+                    return {
+                        area: area.toFixed(2),
+                        tiles: totalTiles,
+                        price: total.toFixed(2),
+                        details: `Área do telhado: ${area.toFixed(2)}m²\nTelhas por m²: ${tilesPerM2}\nTelhas necessárias: ${totalTiles} unidades\nPreço por telha: ${pricePerTile} MZN\nTotal: ${total.toLocaleString()} MZN`
+                    };
+                }
+            }
+        };
+
+        function openCalculator(type) {
+            currentCalculation = type;
+            const config = calculators[type];
+            
+            if (!config) {
+                alert('Calculadora em desenvolvimento!');
+                return;
+            }
+
+            document.getElementById('calculatorTitle').textContent = config.title;
+            
+            let content = '<form id="calculatorForm" class="space-y-4">';
+            
+            config.fields.forEach(field => {
+                content += `<div>`;
+                content += `<label class="block text-sm font-medium mb-1">${field.label}</label>`;
+                
+                if (field.type === 'select') {
+                    content += `<select name="${field.name}" ${field.required ? 'required' : ''} class="w-full border rounded-lg px-3 py-2">`;
+                    content += `<option value="">Selecione...</option>`;
+                    field.options.forEach(option => {
+                        content += `<option value="${option}">${option}</option>`;
+                    });
+                    content += `</select>`;
+                } else {
+                    content += `<input type="${field.type}" name="${field.name}" ${field.required ? 'required' : ''} 
+                               class="w-full border rounded-lg px-3 py-2" 
+                               ${field.type === 'number' ? 'min="0" step="0.01"' : ''}>`;
+                }
+                content += `</div>`;
+            });
+            
+            content += `<div class="flex space-x-3 pt-4">`;
+            content += `<button type="submit" class="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg font-semibold">Calcular</button>`;
+            content += `<button type="button" onclick="clearForm()" class="flex-1 border border-gray-300 py-2 px-4 rounded-lg">Limpar</button>`;
+            content += `</div>`;
+            content += `</form>`;
+            content += `<div id="calculationResult" class="hidden mt-6"></div>`;
+            
+            document.getElementById('calculatorContent').innerHTML = content;
+            
+            document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateMaterial();
+            });
+            
+            document.getElementById('calculatorModal').classList.add('show');
+        }
+
+        function calculateMaterial() {
+            const form = document.getElementById('calculatorForm');
+            const formData = new FormData(form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = isNaN(value) ? value : parseFloat(value);
+            }
+            
+            const config = calculators[currentCalculation];
+            const result = config.calculate(data);
+            currentResult = result;
+            
+            const resultDiv = document.getElementById('calculationResult');
+            
+            if (isPaid) {
+                // Show full results for paid users
+                resultDiv.innerHTML = `
+                    <div class="calculation-result text-white p-4 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Resultado do Cálculo</h3>
+                        <pre class="text-sm whitespace-pre-wrap">${result.details}</pre>
+                        <div class="flex space-x-3 mt-4">
+                            <button onclick="saveCalculation()" 
+                                    class="bg-white text-green-600 px-4 py-2 rounded font-semibold">Salvar</button>
+                            <button onclick="showExportOptions()" 
+                                    class="bg-blue-500 text-white px-4 py-2 rounded font-semibold">Exportar</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show payment required message for free users
+                resultDiv.innerHTML = `
+                    <div class="relative">
+                        <div class="calculation-result text-white p-4 rounded-lg locked-content">
+                            <h3 class="font-bold text-lg mb-2">Resultado do Cálculo</h3>
+                            <pre class="text-sm whitespace-pre-wrap">${result.details}</pre>
+                            <div class="flex space-x-3 mt-4">
+                                <button class="bg-white text-green-600 px-4 py-2 rounded font-semibold">Salvar</button>
+                                <button class="bg-blue-500 text-white px-4 py-2 rounded font-semibold">Exportar</button>
+                            </div>
+                        </div>
+                        <div class="payment-overlay">
+                            <div class="text-center text-white p-6">
+                                <svg class="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
+                                </svg>
+                                <h3 class="text-xl font-bold mb-2">Resultado Bloqueado</h3>
+                                <p class="mb-4">Pague 320 MZN para desbloquear os resultados</p>
+                                <button onclick="showPaymentModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold">
+                                    Desbloquear Agora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultDiv.classList.remove('hidden');
+        }
+
+        function clearForm() {
+            document.getElementById('calculatorForm').reset();
+            document.getElementById('calculationResult').classList.add('hidden');
+        }
+
+        function closeCalculator() {
+            document.getElementById('calculatorModal').classList.remove('show');
+            currentCalculation = null;
+        }
+
+        function saveCalculation() {
+            if (!isPaid) {
+                showPaymentModal();
+                return;
+            }
+            
+            // Save calculation logic here
+            alert('Cálculo salvo com sucesso!');
+        }
+
+        function showExportOptions() {
+            if (!isPaid) {
+                showPaymentModal();
+                return;
+            }
+            
+            document.getElementById('exportModal').classList.add('show');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+        }
+
+        function exportReport(format) {
+            closeExportModal();
+            
+            let message = '';
+            switch(format) {
+                case 'pdf':
+                    message = 'Relatório PDF gerado com sucesso!';
+                    // Here you would integrate with a PDF generation service
+                    break;
+                case 'excel':
+                    message = 'Planilha Excel exportada com sucesso!';
+                    // Here you would integrate with Excel export functionality
+                    break;
+                case 'whatsapp':
+                    message = 'Compartilhado via WhatsApp!';
+                    // Here you would integrate with WhatsApp Web API
+                    break;
+            }
+            
+            showSuccess(message);
+        }
+
+        function showPaymentModal() {
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+        }
+
+        function processPayment(method) {
+            // Show loading
+            document.getElementById('loadingModal').classList.add('show');
+            closePaymentModal();
+
+            // Update button text and disable
+            const buttonText = method === 'mpesa' ? 'mpesaText' : 'paypalText';
+            const originalText = document.getElementById(buttonText).textContent;
+            document.getElementById(buttonText).innerHTML = '<span class="loading"></span> Processando...';
+
+            // Simulate payment processing
+            setTimeout(() => {
+                document.getElementById('loadingModal').classList.remove('show');
+                
+                // Simulate successful payment
+                isPaid = true;
+                localStorage.setItem('quantisPaid', 'true');
+                updatePaymentStatus();
+                
+                // Reset button text
+                document.getElementById(buttonText).textContent = originalText;
+                
+                showSuccess('Pagamento confirmado! Agora você pode visualizar e exportar todos os resultados.');
+                
+                // If there's a current result, refresh it to show unlocked version
+                if (currentResult) {
+                    const resultDiv = document.getElementById('calculationResult');
+                    if (resultDiv && !resultDiv.classList.contains('hidden')) {
+                        resultDiv.innerHTML = `
+                            <div class="calculation-result text-white p-4 rounded-lg">
+                                <h3 class="font-bold text-lg mb-2">Resultado do Cálculo</h3>
+                                <pre class="text-sm whitespace-pre-wrap">${currentResult.details}</pre>
+                                <div class="flex space-x-3 mt-4">
+                                    <button onclick="saveCalculation()" 
+                                            class="bg-white text-green-600 px-4 py-2 rounded font-semibold">Salvar</button>
+                                    <button onclick="showExportOptions()" 
+                                            class="bg-blue-500 text-white px-4 py-2 rounded font-semibold">Exportar</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }, 3000); // 3 seconds delay to simulate processing
+        }
+
+        function showSuccess(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Quantis Pro initialized successfully!');
+            updatePaymentStatus();
+        });
+    </script>
+</body>
+</html>
+
